@@ -7,10 +7,11 @@ class Item(SqlAlchemyBase):
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String)
     price = Column(Integer)
+    # sizes = Column(String)
     description = Column(String, nullable=True)
     discount = Column(Integer)
     purchased = Column(Integer)
     timestamp = Column(DateTime)
 
     def __repr__(self):
-        return f'Items: {self.id} {self.cash} {self.price}'
+        return f'Item: id:{self.id} name:{self.name}'

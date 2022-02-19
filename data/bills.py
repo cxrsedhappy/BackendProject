@@ -13,7 +13,7 @@ class Bill(SqlAlchemyBase):
     timestamp = Column(DateTime)
 
     def __repr__(self):
-        return f'Items: {self.id} {self.cash} {self.price}'
+        return f'Bill: id:{self.id} price:{self.price}'
 
 
 # Todo add relationship to items and bills
