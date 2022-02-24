@@ -1,10 +1,11 @@
 import uvicorn
 from fastapi import FastAPI
 from data.db_session import global_init
-from routers import menu
+from routers import menu, bill
 
 app = FastAPI()
 app.include_router(menu.router)  # adding routers to FastAPI
+app.include_router(bill.router)
 
 
 @app.get('/', tags=['Main'])

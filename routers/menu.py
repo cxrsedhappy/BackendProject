@@ -13,22 +13,24 @@ router = APIRouter(prefix='/menu',
 async def create_item(params: m_Item):
     connection = create_session()
 
-    # TODO create sizes check code with prices
-    # Whats the best way?
-    # 1) price str (not int) param with 399/499/599 and sizes with the same way
-    # 2) two new database tables with relationship to prices and params
-    # (I prefer the first one)
-    # if '/' not in params.sizes:
-    #     return {'message': {'status': 'error',
-    #                         'error_msg': 'sizes does not have /'}}
+    # TODO crate checker for / in prices and sizes
+
+    if '/' not in (params.size or params.price):
+        return {'message': {'status': 'error',
+                            'error_msg': 'sizes does not have /'}}
+    # debug
+    # sizes = params.sizes.split('/')
+    # prices = params.price.split('/')
+    # print(sizes)
+    # print(prices)
 
     item = Item()  # create Item object
     item.name = params.name  # add params
     item.price = params.price
+    item.size = params.size
     item.discount = 0
     item.purchased = 0
-    # item.sizes = params.sizes
-    item.description = item.description
+    item.description = params.description
     item.timestamp = datetime.now().replace(microsecond=0)
 
     connection.add(item)
@@ -39,13 +41,13 @@ async def create_item(params: m_Item):
 
 
 @router.get('/', name='Get Item')
-async def get_item(id: int = 0, name: str = None, price: int = None):
+async def get_item(id: int = 0, name: str = None, price: str = None):
     connection = create_session()
     params = [id, name, price]
     results = []
 
     # Search by id
-    if id is not None:
+    if id is not None and name is None and price is None:
         query = connection.query(Item)
         results = query.all() if id == 0 else query.filter_by(id=id)  # if id == 0 then return all items in database
 
@@ -63,7 +65,8 @@ async def get_item(id: int = 0, name: str = None, price: int = None):
                  'items': [
                     {'id': f'{item.id}',
                      'name': f'{item.name}',
-                     'price': f'{item.price}',
+                     'price': item.price.split("/"),
+                     'size': item.size.split("/"),
                      'description': f'{item.description}',
                      'discount': f'{item.discount}',
                      'purchased': f'{item.purchased}',
@@ -73,5 +76,5 @@ async def get_item(id: int = 0, name: str = None, price: int = None):
 # Todo fix create item id
 # Why do we need id in params when we create item if id is autoincrement?
 # Do not know lol
-# Todo add search by size
+# Todo add search by size (str) and
 # I WANT MY BIG SAUSAGE PIZZA WHY THERE EVERYTHING IS SMALL

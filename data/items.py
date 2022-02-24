@@ -6,8 +6,8 @@ class Item(SqlAlchemyBase):
     __tablename__ = 'Items'
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String)
-    price = Column(Integer)
-    # sizes = Column(String)
+    price = Column(String)
+    size = Column(String)
     description = Column(String, nullable=True)
     discount = Column(Integer)
     purchased = Column(Integer)
