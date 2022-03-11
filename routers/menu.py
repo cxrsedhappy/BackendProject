@@ -11,13 +11,21 @@ router = APIRouter(prefix='/menu',
 
 @router.post('/', name='Create Item')
 async def create_item(params: m_Item):
-    connection = create_session()
+    """
+    length of prices and sizes MUST be the same and include "/" between them
 
-    # TODO crate checker for / in prices and sizes
+    :param params:
+    id(int/None), name(str), price(num/num/num), size(num/num/num), description(str/None)
+
+    :return:
+    success or error message
+    """
+
+    connection = create_session()
 
     if '/' not in (params.size or params.price):
         return {'message': {'status': 'error',
-                            'error_msg': 'sizes does not have /'}}
+                            'error_msg': 'sizes/prices does not have "/"'}}
     # debug
     # sizes = params.sizes.split('/')
     # prices = params.price.split('/')
@@ -41,15 +49,27 @@ async def create_item(params: m_Item):
 
 
 @router.get('/', name='Get Item')
-async def get_item(id: int = 0, name: str = None, price: str = None):
+async def get_item(item_id: int = 0, name: str = None, price: str = None):
+    """
+    get item by id/name/price in this following order
+
+
+    :param item_id: default 0
+    :param name: default 0
+    :param price: default 0
+
+    :return: found item
+    """
+
     connection = create_session()
-    params = [id, name, price]
+    params = [item_id, name, price]
     results = []
 
     # Search by id
     if id is not None and name is None and price is None:
         query = connection.query(Item)
-        results = query.all() if id == 0 else query.filter_by(id=id)  # if id == 0 then return all items in database
+        results = query.all() if item_id == 0 else query.filter_by(id=item_id)
+        # if id == 0 then return all items in database
 
     # Search by name
     elif name is not None:
@@ -73,8 +93,3 @@ async def get_item(id: int = 0, name: str = None, price: str = None):
                      'timestamp': f'{item.timestamp}'} for item in results]}}
 
 
-# Todo fix create item id
-# Why do we need id in params when we create item if id is autoincrement?
-# Do not know lol
-# Todo add search by size (str) and
-# I WANT MY BIG SAUSAGE PIZZA WHY THERE EVERYTHING IS SMALL

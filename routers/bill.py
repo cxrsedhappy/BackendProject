@@ -10,21 +10,20 @@ router = APIRouter(prefix='/bill',
                    responses={404: {'description': 'Not found'}})
 
 
-"""
-Bills section
-
-ItemBill - Item which used only in bill
-Item - Item which used to show pizzeria menu
-
-"""
-
-
 @router.post('/', name='Create bill')
 async def create_bill(customer_name: str):
+    """
+    creates bill
+
+    :param customer_name: str
+    :return: status with bill scheme
+    """
     connection = create_session()
 
     bill = Bill()
     bill.customer_name = customer_name
+    bill.ready = False
+    bill.pay = False
     bill.timestamp = datetime.now().replace(microsecond=0)
 
     connection.add(bill)
@@ -40,11 +39,11 @@ async def create_bill(customer_name: str):
                         }}}
 
 
-@router.post('/{id}', name='Add items to bill')
-async def add_items_to_bill(id, item_id: int):
+@router.post('/{bill_id}', name='Add item to bill')
+async def add_items_to_bill(bill_id, item_id: int):
     connection = create_session()
 
-    bill = connection.query(Bill).filter_by(id=id).first()
+    bill = connection.query(Bill).filter_by(id=bill_id).first()
     item = connection.query(Item).filter_by(id=item_id).first()
 
     adding_item = ItemBill()
@@ -55,16 +54,26 @@ async def add_items_to_bill(id, item_id: int):
     connection.commit()
 
     return {'message': {'status': 'success',
-                        'msg': f'{id}'}}
+                        'msg': f'{bill_id}'}}
 
     # choice = 1/2/3
     # price = 399/499/599
 
 
-@router.get('/{id}', name='Get bill info')
-async def get_bill(id):
+@router.delete('/{bill_id}', name='Delete item from bill')
+async def add_items_to_bill(bill_id, item_id: int):
     connection = create_session()
-    bill = connection.query(Bill).filter_by(id=id).first()
+    bill = connection.query(Bill).filter_by(id=bill_id).first()
+    item = connection.query(Item).filter_by(id=item_id).first()
+
+    print(bill.item)
+    print(item)
+
+
+@router.get('/{bill_id}', name='Get bill info')
+async def get_bill(bill_id):
+    connection = create_session()
+    bill = connection.query(Bill).filter_by(id=bill_id).first()
     return {'message': {'status': 'success',
                         'bill': {
                             'id': bill.id,
