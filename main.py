@@ -1,6 +1,6 @@
 import uvicorn
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 
 from data.db_session import global_init
 
@@ -14,10 +14,9 @@ app.include_router(user.router)
 app.include_router(post.router)
 
 
-@app.get('/', tags=['Main'])
+@app.get('/', tags=['main'])
 async def index():
-    return {'status': 'success',
-            'time': 'none'}
+    return {'message': 'test'}
 
 
 if __name__ == '__main__':

@@ -7,7 +7,7 @@ from data.db_session import create_session
 from routers.user import oauth_scheme, get_current_user
 from models.model import mPost
 
-router = APIRouter(prefix='/post',
+router = APIRouter(prefix='/api/post',
                    tags=['post section'],
                    responses={404: {'description': 'not found'}})  # initialize /post router
 

@@ -14,9 +14,9 @@ from starlette import status
 
 JWT_SECRET = 'secret'
 
-oauth_scheme = OAuth2PasswordBearer(tokenUrl='user/auth')
+oauth_scheme = OAuth2PasswordBearer(tokenUrl='api/user/auth')
 
-router = APIRouter(prefix='/user',
+router = APIRouter(prefix='/api/user',
                    tags=['user section'],
                    responses={404: {'description': 'Not found'}})  # initialize /user router
 
@@ -46,7 +46,7 @@ async def auth_user(nickname: str, password: str):
     return True, user
 
 
-@router.post('/auth')
+@router.post('/auth', name='Auth user')
 async def token(form_data: OAuth2PasswordRequestForm = Depends()):
     user = await auth_user(form_data.username, form_data.password)
     if not user[0]:
@@ -90,7 +90,7 @@ async def get_user(uid: int):
     return {'message': 'not found'}
 
 
-@router.get('/@me', name='Me')
+@router.get('/me', name='Me')
 async def me(tkn: str = Depends(oauth_scheme)):
     user = await get_current_user(tkn)
     return {'message': {'id': user.id,
