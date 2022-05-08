@@ -1,4 +1,7 @@
-fastapi==0.74.0
-SQLAlchemy==1.4.31
-uvicorn==0.17.5
+SQLAlchemy==1.4.36
+passlib~=1.7.4
+uvicorn==0.17.6
 pydantic~=1.9.0
+PyJWT~=2.3.0
+starlette==0.20.0
+fastapi==0.76.0
