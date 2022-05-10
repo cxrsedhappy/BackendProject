@@ -39,6 +39,7 @@ class Post(SqlAlchemyBase):
     __tablename__ = 'post'
     id = Column(sqlalchemy.Integer, autoincrement=True, primary_key=True)
     author_id = Column(sqlalchemy.Integer, ForeignKey('user.id'))
+    author = relationship("User", back_populates="post")
     title = Column(sqlalchemy.String, nullable=False)
     content = Column(sqlalchemy.String, nullable=False)
     timestamp = Column(sqlalchemy.DateTime, nullable=False)

@@ -1,8 +1,9 @@
 import datetime
 import jwt
 
-from fastapi import APIRouter, Depends, HTTPException
-from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
+from fastapi import APIRouter, Depends, HTTPException, Form, Request
+from fastapi.security import OAuth2PasswordBearer
+from fastapi.responses import RedirectResponse
 
 from data.db_session import create_session
 from data.user import User, Hasher
@@ -23,6 +24,7 @@ router = APIRouter(prefix='/api/user',
 
 async def get_current_user(tkn: str = Depends(oauth_scheme)):
     try:
+        print(tkn)
         payload = jwt.decode(tkn, JWT_SECRET, algorithms=['HS256'])
         connection = create_session()
         user = connection.query(User).where(User.id == payload.get('id')).first()
@@ -47,15 +49,14 @@ async def auth_user(nickname: str, password: str):
 
 
 @router.post('/auth', name='Auth user')
-async def token(form_data: OAuth2PasswordRequestForm = Depends()):
-    user = await auth_user(form_data.username, form_data.password)
+async def token(req: Request, username: str = Form(...), password: str = Form(...)):
+    user = await auth_user(username, password)
     if not user[0]:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='Invalid username or password')
 
     token = jwt.encode(user[1].to_dict(), JWT_SECRET)
-    return {'access_token': token,
+    return {'token': token,
             'token_type': 'bearer'}
-
 
 # USER PART
 # <---------------------------------------------------------->
@@ -85,18 +86,20 @@ async def get_user(uid: int):
         return {'id': user.id,
                 'nickname': user.nickname,
                 'total_post': len(user.post),
-                'post_ids': [post.id for post in user.post],
+                'posts': [{"author": post.author.nickname,
+                           "title": post.title,
+                           "content": post.content} for post in user.post],
                 'created_at': user.timestamp}
-    return {'message': 'not found'}
+    return {}
 
 
 @router.get('/me', name='Me')
 async def me(tkn: str = Depends(oauth_scheme)):
     user = await get_current_user(tkn)
-    return {'message': {'id': user.id,
-                        'nickname': user.nickname,
-                        'email': user.email,
-                        'password': user.password,
-                        'total_post': len(user.post),
-                        'post_ids': [post.id for post in user.post],
-                        'created_at': user.timestamp}}
+    return {'id': user.id,
+            'nickname': user.nickname,
+            'email': user.email,
+            'password': user.password,
+            'total_post': len(user.post),
+            'post_ids': [post.id for post in user.post],
+            'created_at': user.timestamp}

@@ -34,16 +34,27 @@ async def create_post(body: mPost, tkn: str = Depends(oauth_scheme)):
 
 
 @router.get('/', name='Get post')
-async def get_post(pid: int):
+async def get_post(pid: int = None):
     connection = create_session()
-    post = connection.query(Post).where(Post.id == pid).first()
+    if pid is not None:
+        post = connection.query(Post).where(Post.id == pid).first()
+        if post is None:
+            return {}
+        return {'id': post.id,
+                'author_id': post.author_id,
+                'title': post.title,
+                'content': post.content,
+                'timestamp': post.timestamp}
+    else:
+        posts = connection.query(Post).limit(5).all()
+        return [{'id': post.id,
+                 'author': {'id': post.author.id,
+                            'nickname': post.author.nickname},
+                 'title': post.title,
+                 'content': post.content,
+                 'timestamp': post.timestamp} for post in posts]
 
-    if post is None:
-        return {'message': 'not found'}
 
-    return {'id': post.id,
-            'author_id': post.author_id,
-            'title': post.title,
-            'content': post.content,
-            'timestamp': post.timestamp}
+
+
 
